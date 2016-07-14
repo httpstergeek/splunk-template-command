@@ -1,0 +1,20 @@
+<setup>
+  <block title="Custom Command">
+    <text>Custom Command</text>
+  </block>
+
+  <block title="Server" endpoint="admin/command_install" entity="command">
+    <input field="url">
+      <label>Server Base URL</label>
+      <type>text</type>
+    </input>
+    <input field="username">
+      <label>Username</label>
+      <type>text</type>
+    </input>
+    <input field="password">
+      <label>Password</label>
+      <type>password</type>
+    </input>
+  </block>
+</setup>
