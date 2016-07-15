@@ -3,7 +3,7 @@
     <text>Custom Command</text>
   </block>
 
-  <block title="Server" endpoint="admin/command_install" entity="command">
+  <block title="Server" endpoint="admin/command_install" entity="customcommand">
     <input field="url">
       <label>Server Base URL</label>
       <type>text</type>
