@@ -17,7 +17,7 @@ def splunkd_auth_header(session_key):
     """
     return {'Authorization': 'Splunk ' + session_key}
 
-def update_settings(settings, server_uri, session_key, conf, password_store):
+def update_settings(settings, server_uri, session_key, conf):
     """
     Updates config file and password store
     :param settings:
@@ -28,18 +28,19 @@ def update_settings(settings, server_uri, session_key, conf, password_store):
     :return:
     """
     app = get_appName()
+    password_store = get_passwordstore_name(server_uri, session_key, app)
     url = "%s%s%s%s%s%s" % (server_uri, '/servicesNS/nobody/', app,'/storage/passwords/%3A', password_store,'%3A?output_mode=json')
     requests.post(
         url=url,
         data={
-            'password': settings.pop(password_store, None)
+            'password': settings.pop(password_store)
         },
         headers=splunkd_auth_header(session_key),
         verify=False)
     update_config(conf, settings)
 
 
-def get_settings(server_uri, session_key, conf, password_store):
+def get_settings(server_uri, session_key, conf):
     """
     Retrieves merged custom config file and password
     :param server_uri:
@@ -49,7 +50,9 @@ def get_settings(server_uri, session_key, conf, password_store):
     :return:
     """
     results = get_config(conf, local=True)
-    results[password_store] = get_password(server_uri, session_key, password_store)
+    app = get_appName()
+    password_store = get_passwordstore_name(server_uri, session_key, app)
+    results[password_store] = get_password(server_uri, session_key, app)
     return results
 
 def update_config(conf, stanzaDict):
@@ -66,18 +69,19 @@ def update_config(conf, stanzaDict):
     return True
 
 
-def get_password(server_uri, session_key, password_store):
+def get_password(server_uri, session_key, app):
     """
     Retrives password from store in plain text
     :param server_uri:
     :param session_key:
-    :param password_store:
     :return:
     """
-    app = get_appName()
-    password_url = "%s%s%s%s%s%s" % (server_uri, '/servicesNS/nobody/', app,
-                                     '/storage/passwords/%3A', password_store, '%3A?output_mode=json')
+    password_store = get_passwordstore_name(server_uri, session_key, app)
+
     try:
+        password_url = "%s%s%s%s%s%s" % (server_uri, '/servicesNS/nobody/', app,
+                                         '/storage/passwords/%3A', password_store, '%3A?output_mode=json')
+
         # attempting to retrieve cleartext password, disabling SSL verification for practical reasons
         result = requests.get(url=password_url, headers=splunkd_auth_header(session_key), verify=False)
         if result.status_code != 200:
@@ -126,3 +130,22 @@ def get_appName():
     splitby = '/' if not (platform.system() == 'Windows') else '\\'
     app = appdir.split(splitby)[-1]
     return app
+
+def get_passwordstore_name(server_uri, session_key, app):
+    app_properties_url = "%s%s%s%s" % (server_uri, '/servicesNS/nobody/', app, '/properties/app?output_mode=json')
+    try:
+        result = requests.get(url=app_properties_url, headers=splunkd_auth_header(session_key), verify=False)
+        if result.status_code != 200:
+            print >> sys.stderr, "ERROR Error: %s" % str(result.json())
+    except Exception, e:
+        print >> sys.stderr, "ERROR Error sending message: %s" % e
+        return False
+
+    splunk_response = json.loads(result.text)
+    for entry in splunk_response['entry']:
+        if "credential" in entry['name']:
+            password_store = entry['name'].replace('credential::','').strip(':')
+            break
+        else:
+            password_store = None
+    return password_store
