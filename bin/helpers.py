@@ -9,6 +9,8 @@ try:
 except:
     pass
 
+# TODO rewrite as class.  Duplicate calls for get_appName and get_passwordstore_name
+
 def splunkd_auth_header(session_key):
     """
     Building dict for request headers
