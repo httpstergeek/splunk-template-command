@@ -25,8 +25,7 @@ class InstallHandler(admin.MConfigHandler):
 
     def handleEdit(self, confInfo):
         if self.callerArgs.id == 'customcommand':
-            password_store = 'customcommand_password'
-            settings = get_settings(splunk.getLocalServerInfo(), self.getSessionKey(), self.callerArgs.id, password_store)
+            settings = get_settings(splunk.getLocalServerInfo(), self.getSessionKey(), self.callerArgs.id)
             settings[self.callerArgs.id] = {}
             if 'url' in self.callerArgs:
                 settings[self.callerArgs.id]['url'] = self.callerArgs['url'][0]
@@ -35,7 +34,9 @@ class InstallHandler(admin.MConfigHandler):
             if 'password' in self.callerArgs:
                 password = self.callerArgs['password'][0]
                 if password and password != PASSWORD_PLACEHOLDER:
+                    app = get_appName()
+                    password_store = get_passwordstore_name(splunk.getLocalServerInfo(), self.getSessionKey(), app)
                     settings[password_store] = password
-            update_settings(settings, splunk.getLocalServerInfo(), self.getSessionKey(), self.callerArgs.id, password_store)
+            update_settings(settings, splunk.getLocalServerInfo(), self.getSessionKey(), self.callerArgs.id)
 
 admin.init(InstallHandler, admin.CONTEXT_APP_ONLY)
