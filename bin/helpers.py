@@ -219,6 +219,27 @@ class AppConf:
         cli.writeConfFile(localconfpath, stanzaDict)
         return True
 
+    def update_settings(self, conf, stanzaDict):
+        """
+        Updates config file and password store.
+        :param conf: Splunk conf file name
+        :param stanzaDict: dictionary of dicts
+        :return:
+        """
+        url = "%s%s%s%s%s%s" % (self.server_uri, '/servicesNS/nobody/', self.app,
+                                '/storage/passwords/%3A', self.password_store, '%3A?output_mode=json')
+        try:
+            result = requests.post(url=url,
+                                   data={'password': stanzaDict.pop(self.password_store)},
+                                   headers=self._splunkd_auth_header(),
+                                   verify=False)
+            if result.status_code != 200:
+                print >> sys.stderr, "ERROR Error: %s" % result.json()
+        except Exception, e:
+            print >> sys.stderr, "ERROR Error sending message: %s" % e
+            return False
+        return self.update_config(conf, stanzaDict)
+
     def _get_appname(self):
         """
         Returns current app context
