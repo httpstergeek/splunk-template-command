@@ -43,9 +43,12 @@ class customCommand(StreamingCommand):
         require=False)
 
     def stream(self, records):
+        # retrieve system information regarding search
         searchinfo = self.metadata.searchinfo
 
         password = get_password(searchinfo.splunkd_uri, searchinfo.session_key, get_appName())
+
+        # loads custom config
         config = get_config('customcommand', local=True)
 
         # create outbound JSON message body
