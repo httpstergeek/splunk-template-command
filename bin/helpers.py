@@ -47,9 +47,9 @@ class AppConf:
         Retrives password from store in plain text
         :return:
         """
-        password_url = "%s%s%s%s%s%s" % (self.server_uri, '/servicesNS/nobody/', self.app,
-                                         '/storage/passwords/%3A', self.password_store, '%3A?output_mode=json')
-        splunk_response = self._get_endpoint(password_url)
+        url = "%s%s%s%s%s%s" % (self.server_uri, '/servicesNS/nobody/', self.app,
+                                '/storage/passwords/%3A', self.password_store, '%3A?output_mode=json')
+        splunk_response = self._get_endpoint(url)
         password = splunk_response.get("entry")[0].get("content").get("clear_password")
         return password
 
@@ -110,9 +110,8 @@ class AppConf:
         returns password store definition from app.conf
         :return:
         """
-        app_properties_url = "%s%s%s%s" % (self.server_uri, '/servicesNS/nobody/',
-                                           self.app, '/properties/app?output_mode=json')
-        splunk_response = self._get_endpoint(app_properties_url)
+        url = "%s%s%s%s" % (self.server_uri, '/servicesNS/nobody/', self.app, '/properties/app?output_mode=json')
+        splunk_response = self._get_endpoint(url)
         password_store = None
         for entry in splunk_response['entry']:
             if "credential" in entry['name']:
