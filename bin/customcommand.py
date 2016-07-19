@@ -20,7 +20,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from splunklib.searchcommands import dispatch, StreamingCommand, Configuration, Option
-import sys
 from helpers import *
 
 
