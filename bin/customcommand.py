@@ -21,8 +21,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from splunklib.searchcommands import dispatch, StreamingCommand, Configuration, Option
 import sys
-import json
-from helpers import get_password, get_config, get_appName
+from helpers import *
 
 
 @Configuration()
@@ -45,11 +44,11 @@ class customCommand(StreamingCommand):
     def stream(self, records):
         # retrieve system information regarding search
         searchinfo = self.metadata.searchinfo
-
-        password = get_password(searchinfo.splunkd_uri, searchinfo.session_key, get_appName())
+        app_conf = AppConf(searchinfo.splunkd_uri, searchinfo.session_key)
+        password = app_conf.get_password()
 
         # loads custom config
-        config = get_config('customcommand', local=True)
+        config = app_conf.get_config('customcommand')
 
         # create outbound JSON message body
         fields = self.fields.split(',')
