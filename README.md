@@ -25,6 +25,10 @@ This are created using parts of the JIRA Alert Add-on created by Splunk. You can
     * edit all `field` attribute to reflect the settings defined in your custom conf file
 10. Edit `install_endpoint.py` to reflect the stanza and setting define in `setup.xml` and your custom.conf file.
 
+###Adding Python modules
+Note: PIP is required and all modules should have no archType.
+
+To add edit the setup.sh.
 
 
 ## License
