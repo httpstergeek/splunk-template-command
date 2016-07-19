@@ -6,8 +6,8 @@ import os
 import platform
 try:
     from splunk.clilib import cli_common as cli
-except:
-    pass
+except Exception, e:
+    print >> sys.stderr, "ERROR Loading splunk.clilib: %s" % e
 
 
 class AppConf:
