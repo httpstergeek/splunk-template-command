@@ -16,7 +16,8 @@ class InstallHandler(admin.MConfigHandler):
         self.supportedArgs.addOptArg('*')
 
     def handleList(self, confInfo):
-        config = get_config('customcommand')
+        app_conf = AppConf(splunk.getLocalServerInfo(), self.getSessionKey())
+        config = app_conf.get_config('customcommand')
         settings = config['customcommand'] if 'customcommand' in config else {}
         item = confInfo['customcommand']
         item['url'] = settings['url'] if settings['url'] else 'http://your.server/'
@@ -25,7 +26,8 @@ class InstallHandler(admin.MConfigHandler):
 
     def handleEdit(self, confInfo):
         if self.callerArgs.id == 'customcommand':
-            settings = get_settings(splunk.getLocalServerInfo(), self.getSessionKey(), self.callerArgs.id)
+            app_conf = AppConf(splunk.getLocalServerInfo(), self.getSessionKey())
+            settings = app_conf.get_settings('customcommand')
             settings[self.callerArgs.id] = {}
             if 'url' in self.callerArgs:
                 settings[self.callerArgs.id]['url'] = self.callerArgs['url'][0]
@@ -34,9 +36,7 @@ class InstallHandler(admin.MConfigHandler):
             if 'password' in self.callerArgs:
                 password = self.callerArgs['password'][0]
                 if password and password != PASSWORD_PLACEHOLDER:
-                    app = get_appName()
-                    password_store = get_passwordstore_name(splunk.getLocalServerInfo(), self.getSessionKey(), app)
-                    settings[password_store] = password
-            update_settings(settings, splunk.getLocalServerInfo(), self.getSessionKey(), self.callerArgs.id)
+                    settings[app_conf.password_store] = password
+            app_conf.update_settings('customcommand', settings)
 
 admin.init(InstallHandler, admin.CONTEXT_APP_ONLY)
