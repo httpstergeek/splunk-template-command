@@ -50,7 +50,7 @@ class customCommand(StreamingCommand):
         config = app_conf.get_config('customcommand')
 
         # create outbound JSON message body
-        fields = self.fields.split(',')
+        fields = self.fields.split(',') if self.fields else []
 
         for record in records:
             record['a_fields'] = '%s' % fields
