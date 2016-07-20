@@ -1,4 +1,3 @@
-__author__ = ''
 import sys
 import requests
 import json
@@ -14,7 +13,7 @@ class AppConf:
     def __init__(self, server_uri, session_key):
         self.server_uri = server_uri
         self.session_key = session_key
-        self.appdir = os.path.dirname(os.path.dirname(__file__))
+        self.dir = os.path.dirname(os.path.dirname(__file__))
         self.app = self._get_appname()
         self.password_store = self._password_store()
 
@@ -22,14 +21,14 @@ class AppConf:
         """
         Retrieves local or merged dictionary of dicts local app context.
         This function creates parity for use with writeConfFile in splunk.clilib
-        :pram local: local config only
-        :param conf: Splunk conf file file name
+        :param conf:  Splunk conf file file name
+        :param local: local config only
         :return: dictionary of dicts
         """
         conf = "%s.conf" % conf
-        defaultconfpath = os.path.join(self.appdir, "default", conf)
+        defaultconfpath = os.path.join(self.dir, "default", conf)
         stanzaDict = cli.readConfFile(defaultconfpath) if os.path.exists(defaultconfpath) else {}
-        localconfpath = os.path.join(self.appdir, "local", conf)
+        localconfpath = os.path.join(self.dir, "local", conf)
         if not local:
             if os.path.exists(localconfpath):
                 localconf = cli.readConfFile(localconfpath)
@@ -71,7 +70,7 @@ class AppConf:
         :return: True
         """
         conf = "%s.conf" % conf
-        localconfpath = os.path.join(self.appdir, "local", conf)
+        localconfpath = os.path.join(self.dir, "local", conf)
         cli.writeConfFile(localconfpath, stanzaDict)
         return True
 
@@ -102,7 +101,7 @@ class AppConf:
         :return:
         """
         splitby = '/' if not (platform.system() == 'Windows') else '\\'
-        app = self.appdir.split(splitby)[-1]
+        app = self.dir.split(splitby)[-1]
         return app
 
     def _password_store(self):
