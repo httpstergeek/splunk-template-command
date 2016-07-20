@@ -20,11 +20,13 @@ class AppConf:
     def get_config(self, conf, local=False):
         """
         Retrieves local or merged dictionary of dicts local app context.
-        This function creates parity for use with writeConfFile in splunk.clilib
+        This function creates parity for use with writeConfFile in splunk.clilib.
+        Should use cli.getMergedConf(), but does not support custom conf files.
         :param conf:  Splunk conf file file name
         :param local: local config only
         :return: dictionary of dicts
         """
+        cli.getMergedConf()
         conf = "%s.conf" % conf
         defaultconfpath = os.path.join(self.dir, "default", conf)
         stanzaDict = cli.readConfFile(defaultconfpath) if os.path.exists(defaultconfpath) else {}
